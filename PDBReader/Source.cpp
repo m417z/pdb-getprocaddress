@@ -11,6 +11,7 @@ OSVERSIONINFOEXW osver = { 0 };
 SYSTEM_INFO si = { 0 };
 
 WCHAR OsId[500] = { 0 };
+WCHAR temp[100] = { 0 };
 WCHAR returnBuf[0x2000] = { 0 };
 WCHAR iniPath[MAX_PATH] = { 0 };
 
@@ -98,6 +99,13 @@ int wmain(int argc, wchar_t* argv[])
 	if (hUser)
 	{
 		printf("User32 Base %p\n", hUser);
+
+		PIMAGE_DOS_HEADER pDos = (PIMAGE_DOS_HEADER)hUser;
+		PIMAGE_NT_HEADERS pNt = (PIMAGE_NT_HEADERS)((DWORD_PTR)pDos + pDos->e_lfanew);
+
+		wsprintfW(temp, L"%08X", pNt->OptionalHeader.AddressOfEntryPoint);
+		wcscat(OsId, L"_");
+		wcscat(OsId, temp);
 
 		ULONG_PTR addressNtUserQueryWindow = GetFunctionAddressPDB(hUser, L"NtUserQueryWindow");
 		ULONG_PTR addressNtUserBuildHwndList = GetFunctionAddressPDB(hUser, L"NtUserBuildHwndList");
